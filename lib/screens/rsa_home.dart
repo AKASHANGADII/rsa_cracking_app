@@ -22,6 +22,7 @@ class _RsaHomeScreenState extends State<RsaHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var EncText = "";
     return Scaffold(
         appBar: AppBar(
           title: Text("RSA"),
@@ -49,8 +50,26 @@ class _RsaHomeScreenState extends State<RsaHomeScreen> {
                   height: 24,
                 ),
                 MaterialButton(
-                  onPressed: () {
-                    rsa(_encController.text);
+                  onPressed: () async {
+                    final publicPem =
+                        await rootBundle.loadString('keys/public.pem');
+                    final publicKey =
+                        RSAKeyParser().parse(publicPem) as RSAPublicKey;
+                    final privatePem =
+                        await rootBundle.loadString('keys/private.pem');
+                    final privKey =
+                        RSAKeyParser().parse(privatePem) as RSAPrivateKey;
+
+                    final encrypter = Encrypter(
+                        RSA(publicKey: publicKey, privateKey: privKey));
+
+                    final encrypted = encrypter.encrypt(_encController.text);
+
+                    setState(() {
+                      EncText = encrypted.base64;
+                    });
+                    print(encrypted.base64);
+                    // rsa(_encController.text);
                   },
                   child: Container(
                     child: const Text(
@@ -72,14 +91,30 @@ class _RsaHomeScreenState extends State<RsaHomeScreen> {
                   height: 24,
                 ),
                 Text(
-                  "Encoded text",
+                  "$EncText",
                   style: TextStyle(color: Colors.black),
                 ),
                 const SizedBox(
                   height: 24,
                 ),
                 MaterialButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final publicPem =
+                        await rootBundle.loadString('keys/public.pem');
+                    final publicKey =
+                        RSAKeyParser().parse(publicPem) as RSAPublicKey;
+                    final privatePem =
+                        await rootBundle.loadString('keys/private.pem');
+                    final privKey =
+                        RSAKeyParser().parse(privatePem) as RSAPrivateKey;
+
+                    final encrypter = Encrypter(
+                        RSA(publicKey: publicKey, privateKey: privKey));
+
+                    final encrypted = encrypter.encrypt(_encController.text);
+                    final de = encrypter.decrypt(encrypted);
+                    print(de);
+                  },
                   child: Container(
                     child: const Text(
                       'Decrypt',

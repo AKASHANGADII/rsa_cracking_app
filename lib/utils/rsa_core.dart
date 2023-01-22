@@ -6,13 +6,13 @@ import 'package:pointycastle/asymmetric/api.dart';
 class RsaCore {
   Future<RSAPublicKey> getPublicKey() async {
     final publicPem = await rootBundle.loadString('keys/public.pem');
-    final publicKey = RSAKeyParser().parse(publicPem) as RSAPublicKey;
+    var publicKey = RSAKeyParser().parse(publicPem) as RSAPublicKey;
     return publicKey;
   }
 
   Future<RSAPrivateKey> getPrivateKey() async {
     final privatePem = await rootBundle.loadString('keys/private.pem');
-    final privateKey = RSAKeyParser().parse(privatePem) as RSAPrivateKey;
+    var privateKey = RSAKeyParser().parse(privatePem) as RSAPrivateKey;
     return privateKey;
   }
 
@@ -33,18 +33,18 @@ class RsaCore {
   }
 }
 
-Future<void> rsa(String text) async {
-  final publicPem = await rootBundle.loadString('keys/public.pem');
-  final publicKey = RSAKeyParser().parse(publicPem) as RSAPublicKey;
-  final privatePem = await rootBundle.loadString('keys/private.pem');
-  final privKey = RSAKeyParser().parse(privatePem) as RSAPrivateKey;
+// Future<void> rsa(String text) async {
+//   final publicPem = await rootBundle.loadString('keys/public.pem');
+//   final publicKey = RSAKeyParser().parse(publicPem) as RSAPublicKey;
+//   final privatePem = await rootBundle.loadString('keys/private.pem');
+//   final privKey = RSAKeyParser().parse(privatePem) as RSAPrivateKey;
 
-  final plainText = text;
-  final encrypter = Encrypter(RSA(publicKey: publicKey, privateKey: privKey));
+//   final plainText = text;
+//   final encrypter = Encrypter(RSA(publicKey: publicKey, privateKey: privKey));
 
-  final encrypted = encrypter.encrypt(plainText);
-  final decrypted = encrypter.decrypt(encrypted);
+//   final encrypted = encrypter.encrypt(plainText);
+//   final decrypted = encrypter.decrypt(encrypted);
 
-  print(encrypted.base64);
-  print(decrypted);
-}
+//   print(encrypted.base64);
+//   print(decrypted);
+// }
