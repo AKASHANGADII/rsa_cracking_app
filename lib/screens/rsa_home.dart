@@ -13,16 +13,49 @@ class RsaHomeScreen extends StatefulWidget {
 
 class _RsaHomeScreenState extends State<RsaHomeScreen> {
   final TextEditingController _encController = TextEditingController();
-
+  @override
   @override
   void dispose() {
     super.dispose();
     _encController.dispose();
   }
 
+  String encText = '';
+  String decText = '';
   @override
   Widget build(BuildContext context) {
-    var EncText = "";
+    Future encrypt() async {
+      final publicPem = await rootBundle.loadString('keys/public.pem');
+      final publicKey = RSAKeyParser().parse(publicPem) as RSAPublicKey;
+      final privatePem = await rootBundle.loadString('keys/private.pem');
+      final privKey = RSAKeyParser().parse(privatePem) as RSAPrivateKey;
+
+      final encrypter =
+          Encrypter(RSA(publicKey: publicKey, privateKey: privKey));
+
+      var encrypted = encrypter.encrypt(_encController.text);
+
+      setState(() {
+        encText = encrypted.base64.toString();
+      });
+    }
+
+    Future decrypt() async {
+      final publicPem = await rootBundle.loadString('keys/public.pem');
+      final publicKey = RSAKeyParser().parse(publicPem) as RSAPublicKey;
+      final privatePem = await rootBundle.loadString('keys/private.pem');
+      final privKey = RSAKeyParser().parse(privatePem) as RSAPrivateKey;
+
+      final encrypter =
+          Encrypter(RSA(publicKey: publicKey, privateKey: privKey));
+
+      final encrypted = encrypter.encrypt(_encController.text);
+      final de = encrypter.decrypt(encrypted);
+      setState(() {
+        decText = de;
+      });
+    }
+
     return Scaffold(
         appBar: AppBar(
           title: Text("RSA"),
@@ -51,25 +84,8 @@ class _RsaHomeScreenState extends State<RsaHomeScreen> {
                 ),
                 MaterialButton(
                   onPressed: () async {
-                    final publicPem =
-                        await rootBundle.loadString('keys/public.pem');
-                    final publicKey =
-                        RSAKeyParser().parse(publicPem) as RSAPublicKey;
-                    final privatePem =
-                        await rootBundle.loadString('keys/private.pem');
-                    final privKey =
-                        RSAKeyParser().parse(privatePem) as RSAPrivateKey;
-
-                    final encrypter = Encrypter(
-                        RSA(publicKey: publicKey, privateKey: privKey));
-
-                    final encrypted = encrypter.encrypt(_encController.text);
-
-                    setState(() {
-                      EncText = encrypted.base64;
-                    });
-                    print(encrypted.base64);
-                    // rsa(_encController.text);
+                    await encrypt();
+                    print(encText);
                   },
                   child: Container(
                     child: const Text(
@@ -91,7 +107,7 @@ class _RsaHomeScreenState extends State<RsaHomeScreen> {
                   height: 24,
                 ),
                 Text(
-                  "$EncText",
+                  encText,
                   style: TextStyle(color: Colors.black),
                 ),
                 const SizedBox(
@@ -99,21 +115,8 @@ class _RsaHomeScreenState extends State<RsaHomeScreen> {
                 ),
                 MaterialButton(
                   onPressed: () async {
-                    final publicPem =
-                        await rootBundle.loadString('keys/public.pem');
-                    final publicKey =
-                        RSAKeyParser().parse(publicPem) as RSAPublicKey;
-                    final privatePem =
-                        await rootBundle.loadString('keys/private.pem');
-                    final privKey =
-                        RSAKeyParser().parse(privatePem) as RSAPrivateKey;
-
-                    final encrypter = Encrypter(
-                        RSA(publicKey: publicKey, privateKey: privKey));
-
-                    final encrypted = encrypter.encrypt(_encController.text);
-                    final de = encrypter.decrypt(encrypted);
-                    print(de);
+                    await decrypt();
+                    print(decText);
                   },
                   child: Container(
                     child: const Text(
@@ -135,7 +138,7 @@ class _RsaHomeScreenState extends State<RsaHomeScreen> {
                   height: 24,
                 ),
                 Text(
-                  "Decrypted text",
+                  decText,
                   style: TextStyle(color: Colors.black),
                 ),
                 Flexible(
